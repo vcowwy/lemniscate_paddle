@@ -1,3 +1,8 @@
+## 目前进展
+- 由于原repo使用的版本比较久远，所以没有把原repo中的pytorch代码跑通，无法进行对比写log。
+- 转换为paddle实现后，在Cifar10数据集上直接进行了训练。目前的训练结果，使用KNN classifiers, NCE m=4096, Top-1的准确率为79.90，与验收标准的80.40有小小的差别。
+
+
 ## Unsupervised Feature Learning via Non-parameteric Instance Discrimination
 
 This repo constains the pytorch implementation for the CVPR2018 unsupervised learning paper [(arxiv)](https://arxiv.org/pdf/1805.01978.pdf).
@@ -36,47 +41,15 @@ First column is the query image, followed by 20 retrievals ranked by the similar
 Our code extends the pytorch implementation of imagenet classification in [official pytorch release](https://github.com/pytorch/examples/tree/master/imagenet). 
 Please refer to the official repo for details of data preparation and hardware configurations.
 
-- supports python27 and [pytorch=0.4](http://pytorch.org)
+- supports python38 and [paddle=2.2.0rc]
 
 - if you are looking for pytorch 0.3, please switch to tag v0.3
 
-- clone this repo: `git clone https://github.com/zhirongw/lemniscate.pytorch`
-
-- Training on ImageNet:
-
-  `python main.py DATAPATH --arch resnet18 -j 32 --nce-k 4096 --nce-t 0.07  --lr 0.03 --nce-m 0.5 --low-dim 128 -b 256 `
-
-  - parameter nce-k controls the number of negative samples. If nce-k sets to 0, the code also supports full softmax learning.
-  - nce-t controls temperature of the distribution. 0.07-0.1 works well in practice.
-  - nce-m stabilizes the learning process. A value of 0.5 works well in practice.
-  - learning rate is initialized to 0.03, a bit smaller than standard supervised learning.
-  - the embedding size is controlled by the parameter low-dim.
+- clone this repo: `git clone https://github.com/vcowwy/lemniscate_paddle`
 
 - During training, we monitor the supervised validation accuracy by K nearest neighbor with K=1, as it's faster, and gives a good estimation of the feature quality.
-
-- Testing on ImageNet:
-
-  `python main.py DATAPATH --arch resnet18 --resume input_model.pth.tar -e` runs testing with default K=200 neighbors.
 
 - Training on CIFAR10:
 
   `python cifar.py --nce-k 0 --nce-t 0.1 --lr 0.03`
 
-
-## Citation
-
-```
-@inproceedings{wu2018unsupervised,
-  title={Unsupervised Feature Learning via Non-Parametric Instance Discrimination},
-  author={Wu, Zhirong and Xiong, Yuanjun and Stella, X Yu and Lin, Dahua},
-  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
-  year={2018}
-}
-```
-
-## Contact
-
-For any questions, please feel free to reach 
-```
-Zhirong Wu: xavibrowu@gmail.com
-```

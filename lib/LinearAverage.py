@@ -1,4 +1,3 @@
-from x2paddle import torch2paddle
 import paddle
 """from torch.autograd import Function"""
 from paddle.autograd import PyLayer
@@ -12,8 +11,10 @@ class LinearAverageOp(PyLayer):
     def forward(self, x, y, memory, params):
         T = params[0].item()
         batchSize = x.size(0)
+
         """out = torch.mm(x.data, memory.t())"""
         out = paddle.mm(x.data, memory.t())
+
         out.div_(T)
         self.save_for_backward(x, memory, y, params)
         return out
@@ -44,10 +45,10 @@ class LinearAverage(nn.Layer):
         super(LinearAverage, self).__init__()
         stdv = 1 / math.sqrt(inputSize)
         self.nLem = outputSize
+
         self.register_buffer('params', paddle.to_tensor([T, momentum]))
         stdv = 1.0 / math.sqrt(inputSize / 3)
-        self.register_buffer('memory', torch2paddle.rand(outputSize,
-            inputSize).mul_(2 * stdv).add_(-stdv))
+        self.register_buffer('memory', paddle.multiply(paddle.rand(shape=[outputSize, inputSize]), paddle.to_tensor(2 * stdv)).add_(-stdv))
 
     def forward(self, x, y):
         out = LinearAverageOp.apply(x, y, self.memory, self.params)

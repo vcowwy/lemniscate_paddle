@@ -6,10 +6,9 @@ import time
 import paddle
 import paddle.nn as nn
 import paddle
-import x2paddle.torch2paddle as dist
+import paddle.distributed as dist
 import paddle.optimizer
 import paddle.io
-import x2paddle.torch2paddle
 import paddle.vision.transforms as transforms
 import datasets
 import models
@@ -114,7 +113,7 @@ def main():
         transforms.RandomHorizontalFlip(), paddle.vision.transforms.ToTensor(), normalize])
         )"""
     if args.distributed:
-        train_sampler = x2paddle.torch2paddle.DistributedSampler(train_dataset)
+        train_sampler = paddle.io.DistributedBatchSampler(train_dataset)
     else:
         train_sampler = None
     train_loader = paddle.io.DataLoader(train_dataset, batch_size=args.

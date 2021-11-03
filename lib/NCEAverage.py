@@ -1,4 +1,3 @@
-from x2paddle import torch2paddle
 import paddle
 """from torch.autograd import Function"""
 from paddle.autograd import PyLayer
@@ -67,7 +66,7 @@ class NCEAverage(nn.Layer):
         self.K = K
         self.register_buffer('params', paddle.to_tensor([K, T, -1, momentum]))
         stdv = 1.0 / math.sqrt(inputSize / 3)
-        self.register_buffer('memory', torch2paddle.rand(outputSize,
+        self.register_buffer('memory', paddle.rand(outputSize,
             inputSize).mul_(2 * stdv).add_(-stdv))
 
     def forward(self, x, y):

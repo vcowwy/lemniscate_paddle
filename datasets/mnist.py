@@ -8,9 +8,6 @@ import numpy as np
 
 
 class MNISTInstance(datasets.MNIST):
-    """MNIST Instance Dataset.
-    """
-
     def __getitem__(self, index):
 
         image, label = self.images[index], self.labels[index]
@@ -23,7 +20,6 @@ class MNISTInstance(datasets.MNIST):
             image = self.transform(image)
 
         if self.backend == 'pil':
-            return paddle.to_tensor(image, dtype=self.dtype), paddle.to_tensor(label, dtype=paddle.int64)
+            return image, label.astype('int64')
 
-        return paddle.to_tensor(image, dtype=self.dtype), paddle.to_tensor(label, dtype=paddle.int64), index
-        #return image.astype(self.dtype), label.astype('int64')
+        return image.astype(self.dtype), label.astype('int64')
