@@ -20,6 +20,6 @@ class MNISTInstance(datasets.MNIST):
             image = self.transform(image)
 
         if self.backend == 'pil':
-            return image, label.astype('int64')
+            return image, np.array(label).astype('int64')
 
         return image.astype(self.dtype), label.astype('int64')

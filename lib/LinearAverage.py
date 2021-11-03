@@ -10,27 +10,27 @@ class LinearAverageOp(PyLayer):
     @staticmethod
     def forward(self, x, y, memory, params):
         T = params[0].item()
-        batchSize = x.size(0)
+        #batchSize = x.size(0)
 
         """out = torch.mm(x.data, memory.t())"""
         out = paddle.mm(x.data, memory.t())
 
-        out.div_(T)
+        out = paddle.divide(out, T)
         self.save_for_backward(x, memory, y, params)
         return out
 
     @staticmethod
     def backward(self, gradOutput):
         x, memory, y, params = self.saved_tensors
-        batchSize = gradOutput.size(0)
+        #batchSize = gradOutput.size(0)
         T = params[0].item()
         momentum = params[1].item()
-        gradOutput.data.div_(T)
+        gradOutput = paddle.divide(gradOutput.data, T)
         """gradInput = torch.mm(gradOutput.data, memory)"""
         gradInput = paddle.mm(gradOutput.data, memory)
-        gradInput.resize_as_(x)
+        gradInput = paddle.reshape(gradInput, shape=x.shape)
         """weight_pos = memory.index_select(0, y.data.view(-1)).resize_as_(x)"""
-        weight_pos = memory.index_select(0, y.data.view(-1)).resize_as_(x)
+        weight_pos = paddle.reshape(memory.index_select(0, y.data.view(-1)), shape=x.shape)
         weight_pos.mul_(momentum)
         weight_pos.add_(paddle.multiply(x.data, 1 - momentum))
         w_norm = weight_pos.pow(2).sum(1, keepdim=True).pow(0.5)
@@ -48,7 +48,8 @@ class LinearAverage(nn.Layer):
 
         self.register_buffer('params', paddle.to_tensor([T, momentum]))
         stdv = 1.0 / math.sqrt(inputSize / 3)
-        self.register_buffer('memory', paddle.multiply(paddle.rand(shape=[outputSize, inputSize]), paddle.to_tensor(2 * stdv)).add_(-stdv))
+        self.register_buffer('memory', paddle.multiply(paddle.rand(shape=[outputSize, inputSize]),
+                                                       paddle.to_tensor(2 * stdv)).add_(paddle.full(shape=[outputSize, inputSize], fill_value=-stdv)))
 
     def forward(self, x, y):
         out = LinearAverageOp.apply(x, y, self.memory, self.params)

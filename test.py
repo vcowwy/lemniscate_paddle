@@ -108,9 +108,9 @@ def kNN(epoch, net, lemniscate, trainloader, testloader, K, sigma,
             candidates = trainLabels.view(1, -1).expand(batchSize, -1)
             """retrieval = torch.gather(candidates, 1, yi)"""
             retrieval = paddle.gather(candidates, 1, yi)
-            retrieval_one_hot.resize_(batchSize * K, C).zero_()
+            retrieval_one_hot = paddle.reshape(retrieval_one_hot, shape=[batchSize * K, C]).zero_()
             retrieval_one_hot.scatter_(1, retrieval.view(-1, 1), 1)
-            yd_transform = yd.clone().div_(sigma).exp_()
+            yd_transform = paddle.exp(paddle.divide(yd.clone(), sigma))
             probs = paddle.sum(paddle.multiply(retrieval_one_hot.view
                 (batchSize, -1, C), yd_transform.view(batchSize, -1, 1)), 1)
             _, predictions = probs.sort(1, True)

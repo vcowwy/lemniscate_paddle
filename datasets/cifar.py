@@ -3,6 +3,7 @@ from __future__ import print_function
 from PIL import Image
 from paddle.vision import datasets
 import numpy as np
+import paddle
 
 
 URL_PREFIX = 'https://dataset.bj.bcebos.com/cifar/'
@@ -30,7 +31,7 @@ class CIFAR10Instance(datasets.Cifar10):
             image = self.transform(image)
 
         if self.backend == 'pil':
-            return image, label.astype('int64')
+            return image, np.array(label).astype('int64'), index
 
         return image.astype(self.dtype), np.array(label).astype('int64'), index
 

@@ -6,9 +6,9 @@ class AliasMethod(object):
     def __init__(self, probs):
 
         if probs.sum() > 1:
-            probs.div_(probs.sum())
+            probs = paddle.divide(probs, paddle.sum(probs))
         K = len(probs)
-        self.prob = paddle.to_tensor(paddle.zeros(K), stop_gradient=True)
+        self.prob = paddle.to_tensor(paddle.zeros([K]), stop_gradient=True)
 
         """self.alias = torch.LongTensor([0]*K)"""
         self.alias = paddle.to_tensor([0]*K, dtype=paddle.int64)
@@ -38,9 +38,9 @@ class AliasMethod(object):
             self.prob[last_one] = 1
 
     def draw(self, N):
-        K = self.alias.size(0)
+        K = self.alias.shape[0]
 
-        kk = paddle.to_tensor(paddle.zeros(N, dtype=paddle.int64), stop_gradient=True).random_(0, K)
+        kk = paddle.to_tensor(paddle.uniform(shape=[N], min=0, max=K), dtype=paddle.int64)
 
         """prob = self.prob.index_select(0, kk)"""
         """alias = self.alias.index_select(0, kk)"""
@@ -49,7 +49,7 @@ class AliasMethod(object):
         alias = paddle.index_select(self.alias, index=kk, axis=0)
         b = paddle.bernoulli(prob)
 
-        oq = kk.mul(paddle.to_tensor(b, dtype=paddle.int64))
-        oj = alias.mul(paddle.to_tensor((1 - b), dtype=paddle.int64))
+        oq = paddle.multiply(kk, paddle.to_tensor(b, dtype=paddle.int64))
+        oj = paddle.multiply(alias, paddle.to_tensor((1 - b), dtype=paddle.int64))
 
         return oq + oj
